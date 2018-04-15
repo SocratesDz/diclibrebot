@@ -1,6 +1,6 @@
 (ns diclibrebot.api
   (:gen-class)
-  (:require [clojure.string :refer [lower-case replace :as string-replace]]
+  (:require [clojure.string :as s]
             [reaver :refer [parse extract-from text attr]]))
 
 (def base-url "http://diccionariolibre.com/")
@@ -18,11 +18,11 @@
   They are represented as {:title :definition :example}"
   [word]
   (if (not (nil? word))
-    (let [word (clojure.string/trim word)
+    (let [word (s/trim word)
           url-to-search (str
                          base-url
                          definition-path
-                         (lower-case (string-replace word " " "-")))]
+                         (s/lower-case (s/replace word " " "-")))]
       (-> (slurp url-to-search)
           (parse)
           (extract-from ".dl-article"
