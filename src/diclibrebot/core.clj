@@ -18,9 +18,9 @@
 (defn format-result [{title :title
                       definition :definition
                       example :example}]
-  (str title "\n"
+  (str "*" title "*" "\n"
        definition "\n"
-       (if (empty? example) "" (str "Ejemplos: " "\n" example))))
+       (if (empty? example) "" (str "*Ejemplos:* " "\n" example))))
 
 (defn create-inline-result [{title :title
                              definition :definition :as result} id]
