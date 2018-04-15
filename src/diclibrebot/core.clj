@@ -78,12 +78,13 @@
     (<! (timeout 5000))
     (if (nil? (<! ch))
       (do
+        (p/stop ch)
         (println "Bot restarted!")
         (recur (p/start token handler)))
       (recur ch))))
   ;;(<!! (p/start token handler)))
 
-(defn -main [& [port]]
+(defn -main [& args]
   (when (str/blank? token)
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
