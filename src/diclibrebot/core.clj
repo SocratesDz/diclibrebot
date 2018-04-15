@@ -71,6 +71,6 @@
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
 
-  (let [port (Integer. (or port (env :port) 80))]
+  (let [port (Integer. (or port (env :port)))]
     (t/set-webhook token (str base-url ":" port "/handler"))
     (jetty/run-jetty (site #'app) {:port port :join? false })))
