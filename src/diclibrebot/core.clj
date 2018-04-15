@@ -1,6 +1,6 @@
 (ns diclibrebot.core
   (:require [clojure.core.async :refer [<! <!! go-loop timeout]]
-            [clojure.string :as str]
+            [clojure.string :as s]
             [environ.core :refer [env]]
             [morse.handlers :as h]
             [morse.polling :as p]
@@ -53,11 +53,9 @@
   (h/command-fn "define"
                 (fn [{{id :id} :chat text :text :as message}]
                   (println "Definir: " message)
-                  (let [clean-text (clojure.string/trim (clojure.string/replace-first text "/define" ""))
+                  (let [clean-text (s/trim (s/replace-first text "/define" ""))
                         results (dic-api/search-definition clean-text)
                         results (map format-result results)
-                        ;;results (clojure.string/join "\n\n" results)
-                        ;;results (apply str results)
                         results (if (empty? clean-text) '(help-text) results)
                         results (if (empty? results) '(not-found) results)]
                     (doseq [r results]
