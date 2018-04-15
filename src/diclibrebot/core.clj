@@ -73,5 +73,5 @@
 
   (t/set-webhook token (str domain "handler"))
 
-  (let [port (Integer. (or port (env :port) 5000))]
+  (let [port (Integer. (or port (env :port) 80))]
     (jetty/run-jetty (site #'app) {:port port :join? false})))
