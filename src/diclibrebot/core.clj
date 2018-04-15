@@ -36,13 +36,14 @@
 
 (def help-text "Para buscar una palabra escribe /define <palabra>.")
 (def not-found "No pudimos encontrar esa palabra :(")
+(def welcome-text "Bienvenido a Diccionario Libre Bot!")
 
 (h/defhandler handler
 
   (h/command-fn "start"
                 (fn [{{id :id :as chat} :chat}]
                   (println "Bot joined new chat: " chat)
-                  (t/send-text token id "Welcome to diclibrebot!")))
+                  (t/send-text token id (str welcome-text "\n" help-text))))
 
   (h/command-fn "help"
                 (fn [{{id :id :as chat} :chat}]
@@ -55,11 +56,12 @@
                   (let [clean-text (clojure.string/trim (clojure.string/replace-first text "/define" ""))
                         results (dic-api/search-definition clean-text)
                         results (map format-result results)
-                        results (clojure.string/join "\n\n" results)
-                        results (apply str results)
-                        results (if (empty? clean-text) help-text results)
-                        results (if (empty? results) not-found results)]
-                    (t/send-text token id results)))))
+                        ;;results (clojure.string/join "\n\n" results)
+                        ;;results (apply str results)
+                        results (if (empty? clean-text) '(help-text) results)
+                        results (if (empty? results) '(not-found) results)]
+                    (doseq [r results]
+                      (t/send-text token id r))))))
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
