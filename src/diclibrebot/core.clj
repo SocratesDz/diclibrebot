@@ -85,7 +85,7 @@
   ;;(<!! (p/start token handler)))
 
 (defn -main [& args]
-  (when (str/blank? token)
+  (when (s/blank? token)
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
 
