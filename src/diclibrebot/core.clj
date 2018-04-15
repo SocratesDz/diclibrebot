@@ -13,8 +13,7 @@
   (:gen-class))
 
 (def token (env :telegram-token))
-(def domain (or (env :domain) "https://diclibrebot.herokuapp.com"))
-(def port (read-string (or port (env :port) "443")))
+(def base-url (env :domain))
 
 (defn format-result [{title :title
                       definition :definition
@@ -72,8 +71,6 @@
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
 
-  (t/set-webhook token (str domain ":" port "/handler"))
-
-  (jetty/run-jetty (site #'app) {:join? false
-                                 :ssl? true
-                                 :ssl-port port }))
+  (let [port (Integer. (or port (env :port) 80))]
+    (t/set-webhook token (str base-url ":" port "/handler"))
+    (jetty/run-jetty (site #'app) {:port port :join? false })))
