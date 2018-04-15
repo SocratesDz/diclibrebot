@@ -7,11 +7,7 @@
 (def definition-path "definicion/")
 
 (defn clean-search-results [results]
-  (if (-> (first results)
-          (:title)
-          (nil?))
-    '()
-    results))
+  (remove #(nil? (get % :title)) results))
 
 (defn search-definition
   "Return search results from diccionariolibre.com.
