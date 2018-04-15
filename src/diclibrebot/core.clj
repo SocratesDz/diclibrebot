@@ -53,13 +53,14 @@
   (h/command-fn "define"
                 (fn [{{id :id} :chat text :text :as message}]
                   (println "Definir: " message)
-                  (let [clean-text (s/trim (s/replace-first text "/define" ""))
-                        results (dic-api/search-definition clean-text)
-                        results (map format-result results)
-                        results (if (empty? clean-text) '(help-text) results)
-                        results (if (empty? results) '(not-found) results)]
-                    (doseq [r results]
-                      (t/send-text token id r))))))
+                  (let [clean-text (s/trim (s/replace-first text "/define" ""))]
+                    (if (empty? clean-text)
+                      (t/send-text token id help-text)
+                      (let [results (dic-api/search-definition clean-text)
+                            results (map format-result results)
+                            results (if (empty? results) [not-found] results)]
+                        (doseq [r results]
+                          (t/send-text token id r))))))))
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
