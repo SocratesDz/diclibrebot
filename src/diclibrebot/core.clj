@@ -65,7 +65,8 @@
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
-  (POST "/handler" {body :body} (handler body)))
+  (POST "/handler" {{updates :result } :body} (map handler updates))
+  (route/not-found "Not Found"))
 
 (defn -main [& [port]]
   (when (str/blank? token)
