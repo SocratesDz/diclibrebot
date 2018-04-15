@@ -60,7 +60,7 @@
                             results (map format-result results)
                             results (if (empty? results) [not-found] results)]
                         (doseq [r results]
-                          (t/send-text token id r))))))))
+                          (t/send-text token id {:parse_mode "Markdown"} r))))))))
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
