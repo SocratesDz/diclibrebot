@@ -1,5 +1,5 @@
 (ns diclibrebot.core
-  (:require [clojure.core.async :refer [<!!]]
+  (:require [clojure.core.async :refer [<! <!! go-loop timeout]]
             [clojure.string :as str]
             [environ.core :refer [env]]
             [morse.handlers :as h]
@@ -63,14 +63,31 @@
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
-  (POST "/handler" {{updates :result } :body} (map handler updates))
+  (POST "/handler" {{updates :result} :body} (map handler updates))
   (ANY "*" [] (route/not-found "Not Found")))
+
+;; I can't use this with heroku :(
+(defn webhook-bot [port]
+  (let [port (Integer. (or port (env :port)))]
+    (t/set-webhook token (str base-url ":" port "/handler"))
+    (jetty/run-jetty (site #'app) {:port port :join? false})))
+
+(defn polling-bot []
+  (println "Starting diclibrebot.")
+  (go-loop [ch (p/start token handler)]
+    (<! (timeout 5000))
+    (if (nil? (<! ch))
+      (do
+        (println "Bot restarted!")
+        (recur (p/start token handler)))
+      (recur ch))))
+  ;;(<!! (p/start token handler)))
 
 (defn -main [& [port]]
   (when (str/blank? token)
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
 
-  (let [port (Integer. (or port (env :port)))]
-    (t/set-webhook token (str base-url ":" port "/handler"))
-    (jetty/run-jetty (site #'app) {:port port :join? false })))
+  ;; Can't use webhook because heroku keeps changing the ports :(
+  (polling-bot)
+  (Thread/sleep Long/MAX_VALUE))

@@ -12,6 +12,9 @@
                  [compojure               "1.6.1"]
                  [ring/ring-jetty-adapter "1.6.3"]]
   :min-lein-version "2.0.0"
+  :main ^:skip-aot diclibrebot.core
+  :target-path "target/%s"
   :plugins [[lein-environ "1.1.0"]]
   :uberjar-name "diclibrebot-standalone.jar"
-  :profiles {:production {:env {:production true}}})
+  :profiles {:uberjar {:aot :all}
+             :production {:env {:production true}}})
