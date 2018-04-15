@@ -5,13 +5,17 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
-            [diclibrebot.api :as dic-api])
+            [diclibrebot.api :as dic-api]
+            [compojure.core :refer [defroutes POST]]
+            [compojure.handler :refer [site]]
+            [compojure.route :as route]
+            [ring.adapter.jetty :as jetty])
   (:gen-class))
 
-; TODO: fill correct token
-;(def token (env :telegram-token))
+(def token (env :telegram-token))
+(def domain (or (env :domain) "https://diclibrebot.herokuapp.com/"))
 
-(def token "511171474:AAFMUS8k5J3d5n38n92osu2PVY-ctfoCHs4")
+;; (def token "511171474:AAFMUS8k5J3d5n38n92osu2PVY-ctfoCHs4")
 
 (defn format-result [{title :title
                       definition :definition
@@ -21,7 +25,7 @@
        "Ejemplos: " "\n" example))
 
 (defn create-inline-result [{title :title
-                            definition :definition :as result} id]
+                             definition :definition :as result} id]
   {:type "article"
    :id (str id)
    :title title
@@ -33,7 +37,7 @@
     formatted-results))
 
 (def help-text "Para buscar una palabra escribe /define <palabra>.")
-  (def not-found "No pudimos encontrar esa palabra :(")
+(def not-found "No pudimos encontrar esa palabra :(")
 
 (h/defhandler handler
 
@@ -57,21 +61,18 @@
                         results (apply str results)
                         results (if (empty? clean-text) help-text results)
                         results (if (empty? results) not-found results)]
-                    (t/send-text token id results))))
+                    (t/send-text token id results)))))
 
-  ;; (h/inline-fn
-  ;;  (fn [inline]
-  ;;    (println "Inline message: " inline-msg)
-  ;;    (let [results (answer-inline-result inline-msg)]
-  ;;      (when (not (empty? results))
-  ;;        (t/answer-inline token id formatted-results)))))
-  )
+(defroutes app
+  (POST "/debug" {body :body} (clojure.pprint/pprint body))
+  (POST "/handler" {body :body} (handler body)))
 
-(defn -main
-  [& args]
+(defn -main [& [port]]
   (when (str/blank? token)
-    (println "Please provde token in TELEGRAM_TOKEN environment variable!")
+    (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
 
-  (println "Starting the diclibrebot")
-  (<!! (p/start token handler)))
+  (t/set-webhook token (str domain "handler"))
+
+  (let [port (Integer. (or port (env :port) 5000))]
+    (jetty/run-jetty (site #'app) {:port port :join? false})))
