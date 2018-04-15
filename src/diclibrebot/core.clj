@@ -20,7 +20,7 @@
                       example :example}]
   (str title "\n"
        definition "\n"
-       "Ejemplos: " "\n" example))
+       (if (empty? example) "" "Ejemplos: " "\n" example)))
 
 (defn create-inline-result [{title :title
                              definition :definition :as result} id]
