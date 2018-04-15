@@ -6,7 +6,7 @@
             [morse.polling :as p]
             [morse.api :as t]
             [diclibrebot.api :as dic-api]
-            [compojure.core :refer [defroutes POST]]
+            [compojure.core :refer [defroutes POST ANY]]
             [compojure.handler :refer [site]]
             [compojure.route :as route]
             [ring.adapter.jetty :as jetty])
@@ -14,8 +14,6 @@
 
 (def token (env :telegram-token))
 (def domain (or (env :domain) "https://diclibrebot.herokuapp.com/"))
-
-;; (def token "511171474:AAFMUS8k5J3d5n38n92osu2PVY-ctfoCHs4")
 
 (defn format-result [{title :title
                       definition :definition
@@ -66,7 +64,7 @@
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
   (POST "/handler" {{updates :result } :body} (map handler updates))
-  (route/not-found "Not Found"))
+  (ANY "*" (route/not-found "Not Found")))
 
 (defn -main [& [port]]
   (when (str/blank? token)
