@@ -18,9 +18,9 @@
 (defn format-result [{title :title
                       definition :definition
                       example :example}]
-  (str "*" title "*" "\n"
+  (str "<b>" title "</b>" "\n"
        definition "\n"
-       (if (empty? example) "" (str "*Ejemplos:* " "\n" example))))
+       (if (empty? example) "" (str "<b>Ejemplos:</b> " "\n" example))))
 
 (defn create-inline-result [{title :title
                              definition :definition :as result} id]
@@ -60,7 +60,7 @@
                             results (map format-result results)
                             results (if (empty? results) [not-found] results)]
                         (doseq [r results]
-                          (t/send-text token id {:parse_mode "Markdown"} r))))))))
+                          (t/send-text token id {:parse_mode "HTML"} r))))))))
 
 (defroutes app
   (POST "/debug" {body :body} (clojure.pprint/pprint body))
